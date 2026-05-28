@@ -325,7 +325,7 @@ frappe.ui.form.MultiSelectDialog = class MultiSelectDialog {
 		if (this.add_filters_group && this.filter_group) {
 			return this.filter_group.get_filters().reduce((acc, filter) => {
 				return Object.assign(acc, {
-					[filter[1]]: [filter[2], filter[3]],
+					[`${filter[0]}.${filter[1]}`]: [filter[2], filter[3]],
 				});
 			}, {});
 		} else {

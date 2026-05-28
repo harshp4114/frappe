@@ -160,7 +160,13 @@ def search_widget(
 				include_disabled = True
 			filters.pop("include_disabled")
 
-		filters = [make_filter_tuple(doctype, key, value) for key, value in filters.items()]
+		def resolve_doctype(fieldname):
+			if "." in fieldname:
+				child_doctype , field = fieldname.split(".",1)
+				return [child_doctype, field]
+			return [doctype, fieldname]
+
+		filters = [make_filter_tuple(*resolve_doctype(key), value) for key, value in filters.items()]
 
 	if for_link_validation:
 		filters.append([doctype, "name", "=", txt])
