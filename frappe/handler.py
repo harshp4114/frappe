@@ -162,15 +162,24 @@ def upload_file():
 
 	if library_file := frappe.form_dict.get("library_file_name"):
 		frappe.has_permission("File", doc=library_file, throw=True)
-		doc = frappe.get_value(
-			"File",
-			frappe.form_dict.library_file_name,
-			["is_private", "file_url", "file_name"],
-			as_dict=True,
+		if not ignore_permissions:
+			check_write_permission(doctype, docname)
+
+		lib_doc = frappe.get_doc("File", library_file)
+
+		if not lib_doc.attached_to_doctype and not lib_doc.attached_to_name:
+			lib_doc.attached_to_doctype = doctype
+			lib_doc.attached_to_name = docname
+			lib_doc.attached_to_field = fieldname
+			lib_doc.folder = folder
+			return lib_doc.save(ignore_permissions=ignore_permissions)
+
+		return lib_doc.create_attachment_copy(
+			attached_to_doctype=doctype,
+			attached_to_name=docname,
+			attached_to_field=fieldname,
+			ignore_permissions=ignore_permissions,
 		)
-		is_private = doc.is_private
-		file_url = doc.file_url
-		filename = doc.file_name
 
 	if not ignore_permissions:
 		check_write_permission(doctype, docname)
